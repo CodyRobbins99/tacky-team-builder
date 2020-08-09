@@ -4,6 +4,9 @@ const Manager = require('./lib/Manager');
 const Engineer = require('./lib/Engineer');
 const Intern = require('./lib/Intern');
 const inquirer = require('inquirer');
+const generatePage = require('./src/page-template');
+const { writeFile, copyFile } = require('./utils/generate-site.js');
+
 
 // empty team array
 const teamArray = [];
@@ -139,13 +142,25 @@ function furtherTeamPrompt() {
             name: 'more',
             message: 'Do you have more employees to add to your team?',
         }
-    ]).then(response => {
+    ])
+    .then(response => {
         if(response.more === true) {
-            getEmployee(teamArray)
+            return getEmployee(teamArray);
         } else {
-            console.log('Team:', teamArray);
-            return;
+            let pageHTML = generatePage(teamArray)
+             writeFile(pageHTML)
+            .then(writeFileResponse => {
+                console.log(writeFileResponse);
+                return copyFile();
+            })
+            .then(copyFileResponse => {
+                console.log(copyFileResponse);
+            })
+            .catch(err => {
+                console.log(err);
+            });
         }
     })
+    
 }
 getEmployee();
